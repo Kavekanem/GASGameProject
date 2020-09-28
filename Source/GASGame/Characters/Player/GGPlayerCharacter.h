@@ -30,6 +30,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Only called on the Server. Calls before Server's AcknowledgePossession.
+	virtual void PossessedBy(AController* NewController) override;
+
+protected:
+	// Client only
+	virtual void OnRep_PlayerState() override;
+
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);

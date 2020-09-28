@@ -12,13 +12,14 @@ enum class GGAbilityInputID : uint8
 	// 1 Sprint
 	Sprint			UMETA(DisplayName = "Sprint"),
 	// 2 Jump
-	Jump			UMETA(DisplayName = "Jump")
+	Jump			UMETA(DisplayName = "Jump"),
+	// 3 Confirm
+	Confirm			UMETA(DisplayName = "Confirm"),
+	// 4 Cancel
+	Cancel			UMETA(DisplayName = "Cancel")
 };
 
-//// 1 Confirm
-//Confirm			UMETA(DisplayName = "Confirm"),
-//// 2 Cancel
-//Cancel			UMETA(DisplayName = "Cancel"),
+
 //// 3 LMB
 //Ability1		UMETA(DisplayName = "Ability1"),
 //// 4 RMB

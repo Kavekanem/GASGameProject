@@ -3,6 +3,8 @@
 
 #include "GGPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "../../Player/GGPlayerState.h"
+#include "../../GASGame.h"
 
 AGGPlayerCharacter::AGGPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -43,6 +45,84 @@ void AGGPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AGGPlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AGGPlayerCharacter::MoveRight);
+
+	if (IsValid(AbilitySystemComponent) && IsValid(InputComponent))
+	{
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+			FString("CancelTarget"), FString("GGAbilityInputID"), static_cast<int32>(GGAbilityInputID::Confirm), static_cast<int32>(GGAbilityInputID::Cancel)));
+	}
+}
+
+void AGGPlayerCharacter::PossessedBy(AController * NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AGGPlayerState * PS = GetPlayerState<AGGPlayerState>();
+
+	if (PS)
+	{
+		// Set the ASC on the Server. Clients do this in OnRep_PlayerState()
+		AbilitySystemComponent = Cast<UGGAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+
+		// AI won't have PlayerControllers so we can init again here just to be sure. No harm in initiating twice for heroes that have PlayerControllers.
+		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+
+	//	// Set the AttributeSetBase for convenience attribute functions
+	//	AttributeSetBase = PS->GetAttributeSetBase();
+	//
+	//	// If we handle players disconnecting and rejoining in the future, we'll have to change this so that possession from rejoining doesn't reset attributes.
+	//	// For now assume possession = spawn/respawn.
+	//	InitializeAttributes();
+	//
+	//	AddStartupEffects();
+
+		AddCharacterAbilities();
+	}
+}
+
+void AGGPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	AGGPlayerState * PS = GetPlayerState<AGGPlayerState>();
+	if (PS)
+	{
+		// Set the ASC for clients. Server does this in PossessedBy.
+		AbilitySystemComponent = Cast<UGGAbilitySystemComponent>(PS->GetAbilitySystemComponent());
+
+		// Init ASC Actor Info for clients. Server will init its ASC when it possesses a new Actor.
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+		//BindASCInput();
+
+		// Set the AttributeSetBase for convenience attribute functions
+		//AttributeSetBase = PS->GetAttributeSetBase();
+
+		// If we handle players disconnecting and rejoining in the future, we'll have to change this so that posession from rejoining doesn't reset attributes.
+		// For now assume possession = spawn/respawn.
+		//InitializeAttributes();
+
+		//AGDPlayerController* PC = Cast<AGDPlayerController>(GetController());
+		//if (PC)
+		//{
+		//	PC->CreateHUD();
+		//}
+
+		// Simulated on proxies don't have their PlayerStates yet when BeginPlay is called so we call it again here
+		//InitializeFloatingStatusBar();
+
+
+		// Respawn specific things that won't affect first possession.
+
+		// Forcibly set the DeadTag count to 0
+		//AbilitySystemComponent->SetTagMapCount(DeadTag, 0);
+
+		// Set Health/Mana/Stamina to their max. This is only necessary for *Respawn*.
+		//SetHealth(GetMaxHealth());
+		//SetMana(GetMaxMana());
+		//SetStamina(GetMaxStamina());
+	}
 }
 
 void AGGPlayerCharacter::MoveForward(float Value)

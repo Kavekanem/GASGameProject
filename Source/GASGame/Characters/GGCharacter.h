@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "../GASGame.h"
+#include "Abilities/GGAbilitySystemComponent.h"
 #include "GGCharacter.generated.h"
 
 UCLASS()
@@ -20,12 +22,15 @@ public:
 	// Implement IAbilitySystemInterface
 	virtual UAbilitySystemComponent * GetAbilitySystemComponent() const override;
 
+	// Switch on AbilityID to return individual ability levels. Hardcoded to 1 for every ability in this project.
+	UFUNCTION(BlueprintCallable, Category = "GGCharacter")
+		virtual int32 GetAbilityLevel(GGAbilityInputID AbilityID) const;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
-	UAbilitySystemComponent * AbilitySystemComponent;
+	UGGAbilitySystemComponent * AbilitySystemComponent;
 
 	// Default abilities for this Character. These will be removed on Character death and re given if Character respawns.
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Abilities")

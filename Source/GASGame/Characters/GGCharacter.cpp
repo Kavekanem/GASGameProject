@@ -8,6 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "UObject/UObjectGlobals.h"
 #include "GGCharacterMovementComponent.h"
+#include "Abilities/GGGameplayAbility.h"
+#include "AbilitySystemComponent.h"
 
 // Sets default values
 AGGCharacter::AGGCharacter(const FObjectInitializer& ObjectInitializer) :
@@ -24,6 +26,11 @@ UAbilitySystemComponent * AGGCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+int32 AGGCharacter::GetAbilityLevel(GGAbilityInputID AbilityID) const
+{
+	return 1;
+}
+
 // Called when the game starts or when spawned
 void AGGCharacter::BeginPlay()
 {
@@ -33,7 +40,7 @@ void AGGCharacter::BeginPlay()
 void AGGCharacter::AddCharacterAbilities()
 {
 	// Grant abilities, but only on the server	
-	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->CharacterAbilitiesGiven)
+	if (GetLocalRole() != ROLE_Authority || !IsValid(AbilitySystemComponent) /*|| AbilitySystemComponent->CharacterAbilitiesGiven*/)
 	{
 		return;
 	}
