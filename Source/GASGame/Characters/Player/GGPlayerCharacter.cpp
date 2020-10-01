@@ -5,8 +5,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../../Player/GGPlayerState.h"
 #include "../../GASGame.h"
+#include "Engine/EngineTypes.h"
 
-AGGPlayerCharacter::AGGPlayerCharacter(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+AGGPlayerCharacter::AGGPlayerCharacter(const FObjectInitializer& OI) : Super(OI)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,15 +24,20 @@ AGGPlayerCharacter::AGGPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom = OI.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	Camera = OI.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FollowCamera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	KunaiSpot = OI.CreateDefaultSubobject<USphereComponent>(this, TEXT("KunaiSpot"));
+	KunaiSpot->SetVisibility(false);
+	KunaiSpot->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+	KunaiSpot->SetupAttachment(RootComponent);
 }
 
 void AGGPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -78,6 +84,16 @@ void AGGPlayerCharacter::PossessedBy(AController * NewController)
 
 		AddCharacterAbilities();
 	}
+}
+
+void AGGPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Projectile = GetWorld()->SpawnActor<AGGProjectile>(ProjectileType, KunaiSpot->GetComponentLocation(), FRotator::ZeroRotator);
+	
+	FAttachmentTransformRules rules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, false);
+	Cast<AActor>(Projectile)->AttachToComponent(KunaiSpot, rules);
 }
 
 void AGGPlayerCharacter::OnRep_PlayerState()

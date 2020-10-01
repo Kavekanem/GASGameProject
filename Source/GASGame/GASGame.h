@@ -16,7 +16,9 @@ enum class GGAbilityInputID : uint8
 	// 3 Confirm
 	Confirm			UMETA(DisplayName = "Confirm"),
 	// 4 Cancel
-	Cancel			UMETA(DisplayName = "Cancel")
+	Cancel			UMETA(DisplayName = "Cancel"),
+	// 5 Ability1
+	Ability1		UMETA(DisplayName = "Ability1")
 };
 
 

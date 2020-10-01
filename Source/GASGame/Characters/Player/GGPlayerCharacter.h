@@ -6,6 +6,8 @@
 #include "../GGCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
+#include "../../Projectiles/GGProjectile.h"
 #include "GGPlayerCharacter.generated.h"
 
 /**
@@ -18,11 +20,11 @@ class GASGAME_API AGGPlayerCharacter : public AGGCharacter
 	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent * CameraBoom;
+		USpringArmComponent * CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent * Camera;
+		UCameraComponent * Camera;
 
 public:
 	AGGPlayerCharacter(const FObjectInitializer& ObjectInitializer);
@@ -33,6 +35,14 @@ public:
 	// Only called on the Server. Calls before Server's AcknowledgePossession.
 	virtual void PossessedBy(AController* NewController) override;
 
+	virtual void BeginPlay();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		USphereComponent * KunaiSpot;
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class AGGProjectile> ProjectileType;
+
 protected:
 	// Client only
 	virtual void OnRep_PlayerState() override;
@@ -40,4 +50,6 @@ protected:
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
+	AGGProjectile * Projectile;
 };
