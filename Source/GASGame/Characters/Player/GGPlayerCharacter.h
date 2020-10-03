@@ -26,6 +26,11 @@ class GASGAME_API AGGPlayerCharacter : public AGGCharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		UCameraComponent * Camera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		float MaxPitch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		float MinPitch;
+
 public:
 	AGGPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
@@ -50,6 +55,8 @@ protected:
 private:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void LookUp(float Value);
+	void Turn(float Value);
 
 	AGGProjectile * Projectile;
 };

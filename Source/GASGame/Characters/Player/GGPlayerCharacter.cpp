@@ -6,6 +6,7 @@
 #include "../../Player/GGPlayerState.h"
 #include "../../GASGame.h"
 #include "Engine/EngineTypes.h"
+#include "../../Player/GGPlayerController.h"
 
 AGGPlayerCharacter::AGGPlayerCharacter(const FObjectInitializer& OI) : Super(OI)
 {
@@ -52,6 +53,9 @@ void AGGPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAxis("MoveForward", this, &AGGPlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AGGPlayerCharacter::MoveRight);
 
+	PlayerInputComponent->BindAxis("LookUp", this, &AGGPlayerCharacter::LookUp);
+	PlayerInputComponent->BindAxis("Turn", this, &AGGPlayerCharacter::Turn);
+
 	if (IsValid(AbilitySystemComponent) && IsValid(InputComponent))
 	{
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
@@ -89,6 +93,9 @@ void AGGPlayerCharacter::PossessedBy(AController * NewController)
 void AGGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Cast<AGGPlayerController>(GetController())->PlayerCameraManager->ViewPitchMax = MaxPitch;
+	Cast<AGGPlayerController>(GetController())->PlayerCameraManager->ViewPitchMin = MinPitch;
 
 	Projectile = GetWorld()->SpawnActor<AGGProjectile>(ProjectileType, KunaiSpot->GetComponentLocation(), FRotator::ZeroRotator);
 	
@@ -172,4 +179,14 @@ void AGGPlayerCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AGGPlayerCharacter::LookUp(float Value)
+{
+	AddControllerPitchInput(Value);
+}
+
+void AGGPlayerCharacter::Turn(float Value)
+{
+	AddControllerYawInput(Value);
 }
