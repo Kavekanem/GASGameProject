@@ -48,6 +48,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class AGGProjectile> ProjectileType;
 
+	AGGProjectile * Projectile;
+
 protected:
 	// Client only
 	virtual void OnRep_PlayerState() override;
@@ -57,6 +59,4 @@ private:
 	void MoveRight(float Value);
 	void LookUp(float Value);
 	void Turn(float Value);
-
-	AGGProjectile * Projectile;
 };
